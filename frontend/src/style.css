@@ -1,3 +1,29 @@
+/* Ticket User Info */
+.ticket-item .created,
+.ticket-item .assigned {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  margin-top: 3px;
+}
+
+/* Edit Button nur sichtbar für Support/Admin via JS */
+.ticket-item .edit {
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ticket-item .edit:hover {
+  background: #b71c1c;
+}
+
+
 /* ===== TICKET LIST LAYOUT ===== */
 .ticket-list {
   margin-bottom: 40px;
