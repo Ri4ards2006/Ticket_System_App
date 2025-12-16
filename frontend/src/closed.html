@@ -2,11 +2,12 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>🐘 Abgeschlossene Tickets</title>
+  <title>🐘 Abgeschlossen</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>🐘 Tickets</h2>
     <nav>
@@ -19,20 +20,26 @@
     </nav>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="content">
     <header class="content-header">
       <h1>Abgeschlossene Tickets</h1>
-      <button class="create-btn" onclick="alert('Create Ticket clicked!')">➕ Neues Ticket</button>
     </header>
 
-    <section class="list">
-      <div class="list-item closed">
+    <div class="all-tickets-container">
+      <div class="ticket-item closed">
         <span>VPN Zugang</span>
         <button>Bearbeiten</button>
       </div>
-    </section>
+      <div class="ticket-item closed">
+        <span>Drucker repariert</span>
+        <button>Bearbeiten</button>
+      </div>
+      <!-- Weitere abgeschlossene Tickets hier -->
+    </div>
   </main>
 </div>
+
 <script src="app.js"></script>
 </body>
 </html>

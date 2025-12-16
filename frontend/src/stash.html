@@ -7,6 +7,7 @@
 </head>
 <body>
 <div class="app">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>🐘 Tickets</h2>
     <nav>
@@ -19,21 +20,27 @@
     </nav>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="content">
     <header class="content-header">
-      <h1>Stash</h1>
-      <p>Tickets, die momentan nicht wichtig sind</p>
-      <button class="create-btn" onclick="alert('Create Ticket clicked!')">➕ Neues Ticket</button>
+      <h1>Stash Tickets</h1>
+      <button class="create-btn" onclick="alert('Ticket erstellen!')">➕ Neues Ticket</button>
     </header>
 
-    <section class="list">
-      <div class="list-item stash">
-        <span>Alte Anfrage</span>
+    <div class="all-tickets-container">
+      <div class="ticket-item stash">
+        <span>Wartung Dokumentation</span>
         <button>Bearbeiten</button>
       </div>
-    </section>
+      <div class="ticket-item stash">
+        <span>Test-Ticket für Stash</span>
+        <button>Bearbeiten</button>
+      </div>
+      <!-- Weitere Stash-Tickets hier -->
+    </div>
   </main>
 </div>
+
 <script src="app.js"></script>
 </body>
 </html>
