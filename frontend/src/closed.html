@@ -1,8 +1,38 @@
-<main class="list">
-  <h2>Abgeschlossene Tickets</h2>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>🐘 Abgeschlossene Tickets</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <h2>🐘 Tickets</h2>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="tickets.html">Tickets</a>
+      <a href="stash.html">Stash</a>
+      <a class="active" href="closed.html">Abgeschlossen</a>
+      <hr>
+      <a class="logout" href="login.html">Logout</a>
+    </nav>
+  </aside>
 
-  <div class="list-item closed">
-    <strong>Drucker repariert</strong>
-    <small>✔ erledigt</small>
-  </div>
-</main>
+  <main class="content">
+    <header class="content-header">
+      <h1>Abgeschlossene Tickets</h1>
+      <button class="create-btn" onclick="alert('Create Ticket clicked!')">➕ Neues Ticket</button>
+    </header>
+
+    <section class="list">
+      <div class="list-item closed">
+        <span>VPN Zugang</span>
+        <button>Bearbeiten</button>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

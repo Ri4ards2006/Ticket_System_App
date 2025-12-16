@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>🐘 Ticket Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="app">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>🐘 Tickets</h2>
-
     <nav>
       <a class="active" href="index.html">Dashboard</a>
       <a href="tickets.html">Tickets</a>
       <a href="stash.html">Stash</a>
       <a href="closed.html">Abgeschlossen</a>
-
-      <hr />
-
+      <hr>
       <a class="logout" href="login.html">Logout</a>
     </nav>
   </aside>
@@ -30,49 +26,39 @@
     <header class="content-header">
       <h1>Ticket Board</h1>
       <p>Übersicht aller aktuellen Tickets</p>
+      <button class="create-btn" onclick="alert('Create Ticket clicked!')">➕ Neues Ticket</button>
     </header>
 
-    <!-- KANBAN -->
     <section class="kanban">
-
-      <!-- OPEN -->
       <div class="column">
         <h3>Open</h3>
-
         <div class="ticket open">
           <h4>Login Problem</h4>
           <p>User kann sich nicht anmelden</p>
         </div>
-
         <div class="ticket open">
           <h4>Drucker offline</h4>
           <p>Kein Netzwerk erreichbar</p>
         </div>
       </div>
 
-      <!-- IN PROGRESS -->
       <div class="column">
         <h3>In Progress</h3>
-
         <div class="ticket progress">
           <h4>Server Wartung</h4>
           <p>Updates werden installiert</p>
         </div>
       </div>
 
-      <!-- CLOSED -->
       <div class="column">
         <h3>Closed</h3>
-
         <div class="ticket closed">
           <h4>VPN Zugang</h4>
           <p>Problem gelöst</p>
         </div>
       </div>
-
     </section>
   </main>
-
 </div>
 
 <script src="app.js"></script>
