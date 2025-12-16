@@ -1,6 +1,11 @@
-console.log("UI geladen");
+// Beispiel: Rolle vom Backend (später dynamisch via API)
+const currentUserRole = "support"; // user | support | admin
 
-// später:
-// fetch("/api/tickets")
-// renderTickets()
-// status ändern
+document.querySelectorAll('.ticket-item').forEach(ticket => {
+  const editBtn = ticket.querySelector('.edit');
+  if(editBtn) {
+    if(currentUserRole === "user") {
+      editBtn.style.display = "none"; // nur für Support/Admin sichtbar
+    }
+  }
+});
