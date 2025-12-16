@@ -1,32 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tickets | Helpdesk</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>🐘 Ticket Kanban</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
     <h1>🐘 Ticket Dashboard</h1>
-    
+    <a href="/logout" class="logout-btn">Logout</a>
+
+    <div class="kanban-board">
+        <div class="kanban-column">
+            <h2>Open</h2>
+            <div class="ticket-list" id="open-tickets">
+                {% for ticket in tickets if ticket.status == 'open' %}
+                <div class="ticket" data-id="{{ ticket.id }}">
+                    <strong>{{ ticket.title }}</strong>
+                    <p>{{ ticket.description }}</p>
+                    <a href="/close/{{ ticket.id }}">Schließen</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="kanban-column">
+            <h2>In Progress</h2>
+            <div class="ticket-list" id="progress-tickets">
+                {% for ticket in tickets if ticket.status == 'in progress' %}
+                <div class="ticket" data-id="{{ ticket.id }}">
+                    <strong>{{ ticket.title }}</strong>
+                    <p>{{ ticket.description }}</p>
+                    <a href="/close/{{ ticket.id }}">Schließen</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="kanban-column">
+            <h2>Closed</h2>
+            <div class="ticket-list" id="closed-tickets">
+                {% for ticket in tickets if ticket.status == 'closed' %}
+                <div class="ticket closed" data-id="{{ ticket.id }}">
+                    <strong>{{ ticket.title }}</strong>
+                    <p>{{ ticket.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <form id="create-ticket" action="/create" method="post">
         <input type="text" name="title" placeholder="Titel" required>
         <textarea name="description" placeholder="Beschreibung" required></textarea>
         <button type="submit">Ticket erstellen</button>
     </form>
-
-    <ul id="ticket-list">
-        {% for ticket in tickets %}
-        <li class="{{ ticket.status }}">
-            <strong>{{ ticket.title }}</strong> - {{ ticket.description }} - Status: {{ ticket.status }}
-            {% if ticket.status != 'closed' %}
-                <a href="/close/{{ ticket.id }}">Schließen</a>
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-
-    <a href="/logout">Logout</a>
 </div>
 
 <script src="main.js"></script>
