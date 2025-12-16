@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>🐘 Alle Tickets</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>🐘 Tickets</h2>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a class="active" href="tickets.html">Tickets</a>
+      <a href="stash.html">Stash</a>
+      <a href="closed.html">Abgeschlossen</a>
+      <hr>
+      <a class="logout" href="login.html">Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <header class="content-header">
+      <h1>Alle Tickets 📌 </h1>
+      <button class="create-btn" onclick="alert('Ticket erstellen!')">➕ Neues Ticket</button>
+    </header>
+
+    <!-- EINZIGE LISTE FÜR ALLE TICKETS -->
+    <div class="all-tickets-container">
+      <div class="ticket-item open">
+        <span>Login Problem</span>
+        <button>Bearbeiten</button>
+      </div>
+      <div class="ticket-item open">
+        <span>Passwort vergessen</span>
+        <button>Bearbeiten</button>
+      </div>
+      <div class="ticket-item progress">
+        <span>Server Wartung</span>
+        <button>Bearbeiten</button>
+      </div>
+      <div class="ticket-item closed">
+        <span>VPN Zugang</span>
+        <button>Bearbeiten</button>
+      </div>
+      <div class="ticket-item closed">
+        <span>Drucker Problem</span>
+        <button>Bearbeiten</button>
+      </div>
+      <!-- Weitere Tickets hier -->
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

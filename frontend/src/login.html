@@ -1,18 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Login | Ticket System</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐘 Ticket Login</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <h2>🦄 Ticket System Login</h2>
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+  <div class="login-container">
+    <div class="login-box">
+      <h2>🐘 Ticket System</h2>
+      <p class="subtitle">Melde dich an, um loszulegen</p>
+      <form action="index.html" method="get">
+        <input type="text" placeholder="Benutzername" required>
+        <input type="password" placeholder="Passwort" required>
         <button type="submit">Login</button>
-    </form>
-</div>
+      </form>
+      <div class="footer">
+        <p>Kein Account? <a href="#">Registrieren</a></p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
