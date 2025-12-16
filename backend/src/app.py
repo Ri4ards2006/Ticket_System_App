@@ -1,13 +1,17 @@
 from flask import Flask
-from routes import main_routes
-from auth import auth_routes
+from src.routes import main_routes
+from src.models import db
+from src.auth import login_manager
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.config['SECRET_KEY'] = 'supersecretkey'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@localhost:5432/ticketdb'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Register Blueprints
-app.register_blueprint(auth_routes)
+db.init_app(app)
+login_manager.init_app(app)
+
 app.register_blueprint(main_routes)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)

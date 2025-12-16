@@ -1,22 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from src.models import User
 
-auth_routes = Blueprint("auth", __name__)
+login_manager = LoginManager()
+login_manager.login_view = "login"
 
-users = {"admin":"admin123"}  # Demo User
-
-@auth_routes.route("/login", methods=["GET","POST"])
-def login():
-    if request.method=="POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if users.get(username)==password:
-            session["user"]=username
-            return redirect("/")
-        else:
-            return "Login failed", 401
-    return render_template("login.html")
-
-@auth_routes.route("/logout")
-def logout():
-    session.pop("user", None)
-    return redirect("/login")
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
