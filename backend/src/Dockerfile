@@ -1,18 +1,16 @@
-# 1️⃣ Base Image: Python slim
-FROM python:3.11-slim
+FROM python:3.13-slim
 
-# 2️⃣ Arbeitsverzeichnis im Container
 WORKDIR /app
 
-# 3️⃣ Copy requirements und installiere Pakete
+COPY ./src ./src
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4️⃣ Copy des gesamten Backend Codes
-COPY src/ ./src
+ENV FLASK_APP=src.app
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV DATABASE_URL=postgresql://ticketuser:password@db:5432/ticketdb
 
-# 5️⃣ Ports exposed
 EXPOSE 5000
 
-# 6️⃣ Standardbefehl zum Starten
-CMD ["python", "src/app.py"]
+CMD ["flask", "run"]
