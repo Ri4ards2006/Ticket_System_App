@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>🐘 Tickets</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>🐘 Tickets</h2>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a class="active" href="tickets.html">Tickets</a>
+      <a href="stash.html">Stash</a>
+      <a href="closed.html">Abgeschlossen</a>
+      <hr>
+      <a class="logout" href="login.html">Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <header class="content-header">
+      <h1>Alle Tickets</h1>
+      <button class="create-btn" onclick="alert('Ticket erstellen!')">➕ Neues Ticket</button>
+    </header>
+
+    <section class="ticket-list">
+      <h2>📌 Open Tickets</h2>
+      <div class="list-container">
+        <div class="ticket-item open">
+          <span class="title">Login Problem</span>
+          <span class="created">Erstellt von: Max</span>
+          <span class="assigned">Bearbeitet von: Lisa</span>
+          <button class="edit">Bearbeiten</button>
+        </div>
+        <div class="ticket-item open">
+          <span class="title">Passwort vergessen</span>
+          <span class="created">Erstellt von: Anna</span>
+          <span class="assigned">Bearbeitet von: Lisa</span>
+          <button class="edit">Bearbeiten</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticket-list">
+      <h2>🟡 In Progress</h2>
+      <div class="list-container">
+        <div class="ticket-item progress">
+          <span class="title">Server Wartung</span>
+          <span class="created">Erstellt von: Max</span>
+          <span class="assigned">Bearbeitet von: Tom</span>
+          <button class="edit">Bearbeiten</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticket-list">
+      <h2>✅ Abgeschlossen</h2>
+      <div class="list-container">
+        <div class="ticket-item closed">
+          <span class="title">VPN Zugang</span>
+          <span class="created">Erstellt von: Anna</span>
+          <span class="assigned">Bearbeitet von: Tom</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

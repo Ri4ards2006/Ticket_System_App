@@ -1,62 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>🐘 Ticket Kanban</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>🐘 Ticket Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <h1>🐘 Ticket Dashboard</h1>
-    <a href="/logout" class="logout-btn">Logout</a>
+<div class="app">
 
-    <div class="kanban-board">
-        <div class="kanban-column">
-            <h2>Open</h2>
-            <div class="ticket-list" id="open-tickets">
-                {% for ticket in tickets if ticket.status == 'open' %}
-                <div class="ticket" data-id="{{ ticket.id }}">
-                    <strong>{{ ticket.title }}</strong>
-                    <p>{{ ticket.description }}</p>
-                    <a href="/close/{{ ticket.id }}">Schließen</a>
-                </div>
-                {% endfor %}
-            </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>🐘 Tickets</h2>
+    <nav>
+      <a class="active" href="index.html">Dashboard</a>
+      <a href="tickets.html">Tickets</a>
+      <a href="stash.html">Stash</a>
+      <a href="closed.html">Abgeschlossen</a>
+      <hr>
+      <a class="logout" href="login.html">Logout</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <header class="content-header">
+      <h1>Ticket Board</h1>
+      <p>Übersicht aller aktuellen Tickets</p>
+      <button class="create-btn" onclick="alert('Create Ticket clicked!')">➕ Neues Ticket</button>
+    </header>
+
+    <section class="kanban">
+      <div class="column">
+        <h3>Open</h3>
+        <div class="ticket open">
+          <h4>Login Problem</h4>
+          <p>User kann sich nicht anmelden</p>
         </div>
-
-        <div class="kanban-column">
-            <h2>In Progress</h2>
-            <div class="ticket-list" id="progress-tickets">
-                {% for ticket in tickets if ticket.status == 'in progress' %}
-                <div class="ticket" data-id="{{ ticket.id }}">
-                    <strong>{{ ticket.title }}</strong>
-                    <p>{{ ticket.description }}</p>
-                    <a href="/close/{{ ticket.id }}">Schließen</a>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="ticket open">
+          <h4>Drucker offline</h4>
+          <p>Kein Netzwerk erreichbar</p>
         </div>
+      </div>
 
-        <div class="kanban-column">
-            <h2>Closed</h2>
-            <div class="ticket-list" id="closed-tickets">
-                {% for ticket in tickets if ticket.status == 'closed' %}
-                <div class="ticket closed" data-id="{{ ticket.id }}">
-                    <strong>{{ ticket.title }}</strong>
-                    <p>{{ ticket.description }}</p>
-                </div>
-                {% endfor %}
-            </div>
+      <div class="column">
+        <h3>In Progress</h3>
+        <div class="ticket progress">
+          <h4>Server Wartung</h4>
+          <p>Updates werden installiert</p>
         </div>
-    </div>
+      </div>
 
-    <form id="create-ticket" action="/create" method="post">
-        <input type="text" name="title" placeholder="Titel" required>
-        <textarea name="description" placeholder="Beschreibung" required></textarea>
-        <button type="submit">Ticket erstellen</button>
-    </form>
+      <div class="column">
+        <h3>Closed</h3>
+        <div class="ticket closed">
+          <h4>VPN Zugang</h4>
+          <p>Problem gelöst</p>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 
-<script src="main.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
