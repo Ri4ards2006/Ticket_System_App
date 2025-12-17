@@ -1,0 +1,9 @@
+Flask
+SQLAlchemy
+psycopg2-binary
+
+flask
+psycopg2
+flask-login
+flask-wtf
+flask-bcrypt
