@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    container_name: ticket_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ticketuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ticketdb
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+      - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: ticket_backend
+    restart: unless-stopped
+    environment:
+      FLASK_APP: src/app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: ticket_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
