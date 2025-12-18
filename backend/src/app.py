@@ -4,6 +4,11 @@ from src.models import db
 from src.auth import login_manager
 import os
 
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://ticketuser:password@db:5432/ticketdb"
+)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'supersecretkey')
 
