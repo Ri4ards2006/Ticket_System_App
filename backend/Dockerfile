@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-# Systemabhängigkeiten installieren, damit psycopg2 gebaut werden kann
+# Systemabhängigkeiten für psycopg2 installieren
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -9,11 +9,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Requirements installieren
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/ .
+# src-Verzeichnis kopieren, damit Imports funktionieren
+COPY src/ ./src/
 
 EXPOSE 5000
 
