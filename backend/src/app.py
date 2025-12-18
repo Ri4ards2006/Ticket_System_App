@@ -1,8 +1,15 @@
 from flask import Flask
-from src.routes import main_routes
-from src.models import db
-from src.auth import login_manager
+from .routes import main_routes
+from .models import db
+from .auth import login_manager
+import time
 import os
+from sqlalchemy.exc import OperationalError 
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://ticketuser:password@db:5432/ticketdb"
+)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'supersecretkey')
@@ -10,7 +17,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'supersecretkey')
 # PostgreSQL URI aus Environment Variables (Container-freundlich)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
-    'postgresql://ticketuser:password@db:5432/ticketdb'  # default für Container
+    'postgresql://ticketuser:password@db:5432/ticketdb'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -22,10 +29,18 @@ login_manager.init_app(app)
 app.register_blueprint(main_routes)
 
 # Tabellen automatisch erstellen, falls sie nicht existieren
-@app.before_first_request
 def create_tables():
-    db.create_all()
+    for _ in range(10):  # 10 Versuche
+        try:
+            with app.app_context():
+                db.create_all()
+            print("DB connected!")
+            return
+        except OperationalError:
+            print("DB noch nicht bereit, warte 2 Sekunden...")
+            time.sleep(2)
+    raise RuntimeError("Konnte keine Verbindung zur DB herstellen!")
 
 if __name__ == "__main__":
-    # Debug nur lokal
+    create_tables()  # Tabellen direkt beim Start erstellen
     app.run(host="0.0.0.0", port=5000, debug=True)

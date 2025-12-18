@@ -40,7 +40,7 @@ def update_ticket(id):
         db.session.commit()
     return redirect(url_for('main.tickets_view'))
 
-# Logout
+# Logout 
 @main_routes.route('/logout')
 @login_required
 def logout():
