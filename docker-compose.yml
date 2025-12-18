@@ -1,14 +1,11 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:16
-    container_name: ticket_db
-    restart: unless-stopped
+    container_name: ticket-db
     environment:
+      POSTGRES_DB: ticketdb
       POSTGRES_USER: ticketuser
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: ticketdb
     volumes:
       - ./db_data:/var/lib/postgresql/data
       - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -16,21 +13,22 @@ services:
       - "5432:5432"
 
   backend:
-    build: ./backend
-    container_name: ticket_backend
-    restart: unless-stopped
-    environment:
-      FLASK_APP: src/app.py
-      FLASK_ENV: development
-      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
-    ports:
-      - "5000:5000"
+    container_name: ticket-backend
+    build:
+      context: ./backend        # 🔥 HIER war der Fehler
+      dockerfile: Dockerfile
     depends_on:
       - db
+    environment:
+      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
+      SECRET_KEY: supersecretkey
+    ports:
+      - "5000:5000"
 
   frontend:
-    build: ./frontend
-    container_name: ticket_frontend
-    restart: unless-stopped
+    container_name: ticket-frontend
+    build:
+      context: ./frontend       # 🔥 NICHT docker/frontend
+      dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "8080:80"
