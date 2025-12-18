@@ -18,4 +18,5 @@ COPY src/ ./src/
 
 EXPOSE 5000
 
-CMD ["python", "src/app.py"]
+# Nutze:
+CMD ["python", "-m", "src.app"]

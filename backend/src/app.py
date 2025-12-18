@@ -1,7 +1,7 @@
 from flask import Flask
-from routes import main_routes
-from src.models import db
-from src.auth import login_manager
+from .routes import main_routes
+from .models import db
+from .auth import login_manager
 import os
 
 DATABASE_URL = os.getenv(
