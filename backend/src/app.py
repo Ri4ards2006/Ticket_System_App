@@ -1,5 +1,5 @@
 from flask import Flask
-from src.routes import main_routes
+from routes import main_routes
 from src.models import db
 from src.auth import login_manager
 import os
