@@ -4,7 +4,7 @@ from .models import db
 from .auth import login_manager
 import time
 import os
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError 
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
