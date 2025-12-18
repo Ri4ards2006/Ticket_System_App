@@ -1,34 +1,33 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
-    container_name: ticket-db
     environment:
-      POSTGRES_DB: ticketdb
       POSTGRES_USER: ticketuser
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: ticketdb
     volumes:
-      - ./db_data:/var/lib/postgresql/data
-      - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   backend:
-    container_name: ticket-backend
-    build:
-      context: ./backend        # 🔥 HIER war der Fehler
-      dockerfile: Dockerfile
-    depends_on:
-      - db
+    build: ./backend
     environment:
       DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
       SECRET_KEY: supersecretkey
+    depends_on:
+      - db
     ports:
       - "5000:5000"
 
   frontend:
-    container_name: ticket-frontend
-    build:
-      context: ./frontend       # 🔥 NICHT docker/frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     ports:
-      - "8080:80"
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
