@@ -8,12 +8,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Abhängigkeiten kopieren (Pfad relativ zum Build-Kontext!)
-COPY backend/requirements.txt .
+# requirements.txt aus dem gleichen Ordner wie das Dockerfile kopieren
+COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Quellcode kopieren
-COPY backend/src/ ./src/
+COPY src/ ./src/
 
 EXPOSE 5000
 
