@@ -2,7 +2,9 @@ from flask import Flask
 from .routes import main_routes
 from .models import db
 from .auth import login_manager
+import time
 import os
+from sqlalchemy.exc import OperationalError
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -28,10 +30,17 @@ app.register_blueprint(main_routes)
 
 # Tabellen automatisch erstellen, falls sie nicht existieren
 def create_tables():
-    with app.app_context():  # Kontext setzen, damit SQLAlchemy funktioniert
-        db.create_all()
+    for _ in range(10):  # 10 Versuche
+        try:
+            with app.app_context():
+                db.create_all()
+            print("DB connected!")
+            return
+        except OperationalError:
+            print("DB noch nicht bereit, warte 2 Sekunden...")
+            time.sleep(2)
+    raise RuntimeError("Konnte keine Verbindung zur DB herstellen!")
 
 if __name__ == "__main__":
     create_tables()  # Tabellen direkt beim Start erstellen
-    # Debug nur lokal
     app.run(host="0.0.0.0", port=5000, debug=True)

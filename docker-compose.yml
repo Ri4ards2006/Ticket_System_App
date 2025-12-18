@@ -10,17 +10,19 @@ services:
     ports:
       - "5432:5432"
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
-      SECRET_KEY: supersecretkey
-    depends_on:
-      - db
-    ports:
-      - "5000:5000"
+backend:
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  environment:
+    DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
+    SECRET_KEY: supersecretkey
+  depends_on:
+    - db
+  ports:
+    - "5000:5000"
+  command: ["./wait-for-it.sh", "db:5432", "--timeout=30", "--strict", "--", "python", "-m", "src.app"]
+
 
   frontend:
     build:
