@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from .models import db, User
-from .routes import main_routes
+from .routes import main
 
 def create_app():
     app = Flask(__name__)
@@ -18,8 +18,11 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    app.register_blueprint(main_routes)
+    app.register_blueprint(main)
 
     return app
 
 app = create_app()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
