@@ -5,7 +5,7 @@ document.querySelectorAll('.ticket-item').forEach(ticket => {
   const editBtn = ticket.querySelector('.edit');
   if(editBtn) {
     if(currentUserRole === "user") {
-      editBtn.style.display = "none"; // nur für Support/Admin sichtbar
+      editBtn.style.display = "none"; //  nur für Support/Admin sichtbar
     }
   }
 });
