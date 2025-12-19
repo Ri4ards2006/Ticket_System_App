@@ -1,5 +1,6 @@
 // Beispiel: Rolle vom Backend (später dynamisch via API)
 const currentUserRole = "support"; // user | support | admin
+console.log("main.js geladen");
 
 document.querySelectorAll('.ticket-item').forEach(ticket => {
   const editBtn = ticket.querySelector('.edit');
