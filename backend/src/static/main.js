@@ -1,12 +1,14 @@
-// Beispiel: Rolle vom Backend (später dynamisch via API)
-const currentUserRole = "support"; // user | support | admin
 console.log("main.js geladen");
 
-document.querySelectorAll('.ticket-item').forEach(ticket => {
-  const editBtn = ticket.querySelector('.edit');
-  if(editBtn) {
-    if(currentUserRole === "user") {
-      editBtn.style.display = "none"; //  nur für Support/Admin sichtbar
-    }
+// Rolle kommt später vom Backend
+const currentUserRole = "support"; // user | support | admin
+
+document.querySelectorAll(".ticket").forEach(ticket => {
+  const editBtn = ticket.querySelector(".edit");
+
+  if (!editBtn) return;
+
+  if (currentUserRole === "user") {
+    editBtn.style.display = "none";
   }
 });

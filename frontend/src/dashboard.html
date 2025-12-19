@@ -2,44 +2,70 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <title>🐘 Ticket Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<header class="topbar">
-  <h1>🐘 Dashboard</h1>
-  <nav>
-    <a class="active" href="dashboard.html">Board</a>
-    <a href="tickets.html">Tickets</a>
-    <a href="stash.html">Stash</a>
-    <a href="closed.html">Abgeschlossen</a>
-    <a class="logout" href="login.html">Logout</a>
-  </nav>
-</header>
+<div class="app">
 
-<main class="kanban">
-  <section class="column open">
-    <h2>Open</h2>
-    <div class="ticket open">
-      <h3>Login kaputt</h3>
-      <p>User kommt nicht rein</p>
-    </div>
-  </section>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>🐘 Tickets</h2>
+    <nav>
+      <a class="active" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('main.tickets_view') }}">Tickets</a>
+      <hr>
+      <a class="logout" href="{{ url_for('main.logout') }}">Logout</a>
+    </nav>
+  </aside>
 
-  <section class="column progress">
-    <h2>In Progress</h2>
-    <div class="ticket progress">
-      <h3>Server reboot</h3>
-      <p>Wartung läuft</p>
-    </div>
-  </section>
+  <!-- CONTENT -->
+  <main class="content">
+    <header class="content-header">
+      <h1>Ticket Board</h1>
+      <p>Übersicht aller aktuellen Tickets</p>
+    </header>
 
-  <section class="column closed">
-    <h2>Closed</h2>
-  </section>
-</main>
+    <section class="kanban">
 
-<script src="app.js"></script>
+      <!-- OPEN -->
+      <div class="column">
+        <h3>Open</h3>
+        {% for ticket in tickets if ticket.status == 'open' %}
+          <div class="ticket open">
+            <h4>{{ ticket.title }}</h4>
+            <p>{{ ticket.description }}</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="column">
+        <h3>In Progress</h3>
+        {% for ticket in tickets if ticket.status == 'progress' %}
+          <div class="ticket progress">
+            <h4>{{ ticket.title }}</h4>
+            <p>{{ ticket.description }}</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- CLOSED -->
+      <div class="column">
+        <h3>Closed</h3>
+        {% for ticket in tickets if ticket.status == 'closed' %}
+          <div class="ticket closed">
+            <h4>{{ ticket.title }}</h4>
+            <p>{{ ticket.description }}</p>
+          </div>
+        {% endfor %}
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
