@@ -1,12 +1,8 @@
 Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-WTF
+Flask-Bcrypt
+
 SQLAlchemy
 psycopg2-binary
-
-flask
-psycopg2
-flask-login
-flask-wtf
-flask-bcrypt
-flask
-flask-login
-flask-sqlalchemy
