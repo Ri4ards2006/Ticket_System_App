@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from .models import db, User
 from .routes import main
-
+from src import create_app
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "dev"
@@ -23,3 +23,5 @@ def create_app():
     return app
 
 app = create_app()
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)  # Frontend/Docker kann so darauf zugreifen
