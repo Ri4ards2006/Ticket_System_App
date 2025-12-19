@@ -2,6 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Build-Tools für PostgreSQL
+RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -14,4 +17,5 @@ ENV DATABASE_URL=postgresql://ticketuser:password@db:5432/ticketdb
 
 EXPOSE 5000
 
-CMD ["flask", "run"]
+# Direkt Python Modul starten (robuster als "flask run")
+CMD ["python", "-m", "src.app"]
