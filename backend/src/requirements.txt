@@ -7,3 +7,6 @@ psycopg2
 flask-login
 flask-wtf
 flask-bcrypt
+flask
+flask-login
+flask-sqlalchemy
