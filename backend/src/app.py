@@ -1,25 +1,25 @@
 from flask import Flask
-from src.models import db
-from src.auth import login_manager
-from src.routes import main_routes
-import os
+from flask_login import LoginManager
+from .models import db, User
+from .routes import main_routes
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    app.config["SECRET_KEY"] = "dev"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://ticketuser:password@db:5432/ticketdb"
 
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "devkey")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://ticketuser:password@db:5432/ticketdb"
-)
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
 
-db.init_app(app)
-login_manager.init_app(app)
-app.register_blueprint(main_routes)
+    login_manager = LoginManager()
+    login_manager.login_view = "main.login"
+    login_manager.init_app(app)
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.register_blueprint(main_routes)
+
+    return app
+
+app = create_app()
