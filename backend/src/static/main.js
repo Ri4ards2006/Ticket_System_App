@@ -1,14 +1,12 @@
 console.log("main.js geladen");
 
-// Rolle kommt später vom Backend
+// später via Backend setzen
 const currentUserRole = "support"; // user | support | admin
 
-document.querySelectorAll(".ticket").forEach(ticket => {
+document.querySelectorAll(".ticket-item").forEach(ticket => {
   const editBtn = ticket.querySelector(".edit");
 
-  if (!editBtn) return;
-
-  if (currentUserRole === "user") {
+  if (editBtn && currentUserRole === "user") {
     editBtn.style.display = "none";
   }
 });
