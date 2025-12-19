@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>🐘 Ticket Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 <body>
 <div class="app">
@@ -17,7 +18,8 @@
       <a href="stash.html">Stash</a>
       <a href="closed.html">Abgeschlossen</a>
       <hr>
-      <a class="logout" href="login.html">Logout</a>
+  <a class="logout" href="{{ url_for('main.logout') }}">Logout</a>
+
     </nav>
   </aside>
 
@@ -32,30 +34,42 @@
     <section class="kanban">
       <div class="column">
         <h3>Open</h3>
-        <div class="ticket open">
-          <h4>Login Problem</h4>
-          <p>User kann sich nicht anmelden</p>
-        </div>
-        <div class="ticket open">
-          <h4>Drucker offline</h4>
-          <p>Kein Netzwerk erreichbar</p>
-        </div>
+    {% for ticket in tickets %}
+  <div class="ticket {{ ticket.status }}">
+    <h4>{{ ticket.title }}</h4>
+    <p>{{ ticket.description }}</p>
+  </div>
+{% endfor %}
+
+    {% for ticket in tickets %}
+  <div class="ticket {{ ticket.status }}">
+    <h4>{{ ticket.title }}</h4>
+    <p>{{ ticket.description }}</p>
+  </div>
+{% endfor %}
+
       </div>
 
       <div class="column">
         <h3>In Progress</h3>
-        <div class="ticket progress">
-          <h4>Server Wartung</h4>
-          <p>Updates werden installiert</p>
-        </div>
+       {% for ticket in tickets %}
+  <div class="ticket {{ ticket.status }}">
+    <h4>{{ ticket.title }}</h4>
+    <p>{{ ticket.description }}</p>
+  </div>
+{% endfor %}
+
       </div>
 
       <div class="column">
         <h3>Closed</h3>
-        <div class="ticket closed">
-          <h4>VPN Zugang</h4>
-          <p>Problem gelöst</p>
-        </div>
+     {% for ticket in tickets %}
+  <div class="ticket {{ ticket.status }}">
+    <h4>{{ ticket.title }}</h4>
+    <p>{{ ticket.description }}</p>
+  </div>
+{% endfor %}
+
       </div>
     </section>
   </main>
