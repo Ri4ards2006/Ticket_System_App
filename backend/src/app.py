@@ -7,7 +7,6 @@ def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "dev"
     app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://ticketuser:password@db:5432/ticketdb"
-    app.config['WTF_CSRF_ENABLED'] = False  # für Testzwecke
 
     db.init_app(app)
 
