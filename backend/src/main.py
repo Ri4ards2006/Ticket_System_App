@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for
 
 main_bp = Blueprint('main', __name__, template_folder='templates', static_folder='static')
 
-# Dummy login
+# Dummy login n
 users = {"admin": "password"}
 
 @main_bp.route("/login", methods=["GET", "POST"])
