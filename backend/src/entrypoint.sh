@@ -1,14 +1,14 @@
 #!/bin/bash
-# entrypoint.sh
+set -e
 
-# Warte, bis PostgreSQL erreichbar ist
-echo "Waiting for postgres..."
+echo "Waiting for PostgreSQL..."
+# db ist der Name des DB-Containers in docker-compose.yml
 while ! pg_isready -h db -p 5432 > /dev/null 2>&1; do
     sleep 1
 done
 
-# DB initialisieren
+echo "PostgreSQL is ready, initializing database..."
 python src/init_db.py
 
-# Flask starten
+echo "Starting Flask..."
 flask run --host=0.0.0.0 --port=5000
