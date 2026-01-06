@@ -3,6 +3,10 @@ from flask_login import LoginManager
 from .models import db, User
 from .routes import main
 
+
+from src import create_app
+app = create_app()
+
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "dev"
