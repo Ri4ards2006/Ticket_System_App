@@ -1,8 +1,0 @@
-Flask
-Flask-Login
-Flask-SQLAlchemy
-Flask-WTF
-Flask-Bcrypt
-
-SQLAlchemy
-psycopg2-binary
