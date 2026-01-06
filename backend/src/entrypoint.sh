@@ -1,14 +1,14 @@
 #!/bin/bash
 # entrypoint.sh
 
-# Optional: kleine Wartezeit, bis die DB bereit ist
-echo "Warte auf PostgreSQL..."
-sleep 5  # kann bei Bedarf höher sein
+# Warte, bis PostgreSQL erreichbar ist
+echo "Waiting for postgres..."
+while ! pg_isready -h db -p 5432 > /dev/null 2>&1; do
+    sleep 1
+done
 
-# Datenbank initialisieren
-echo "Initialisiere Datenbank..."
+# DB initialisieren
 python src/init_db.py
 
 # Flask starten
-echo "Starte Flask..."
 flask run --host=0.0.0.0 --port=5000
