@@ -2,11 +2,13 @@ from flask import Flask
 from flask_login import LoginManager
 from .models import db, User
 from .routes import main
-from src import create_app
+
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "dev"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://ticketuser:password@db:5432/ticketdb"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "postgresql://ticketuser:password@db:5432/ticketdb"
+    )
 
     db.init_app(app)
 
@@ -19,6 +21,4 @@ def create_app():
         return User.query.get(int(user_id))
 
     app.register_blueprint(main)
-
     return app
-
