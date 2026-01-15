@@ -2,6 +2,7 @@ import datetime
 import streamlit as st
 import hashlib
 import sqlite3
+import os  # Für Verzeichnis-Management
 
 # Dark Mode Styling
 st.markdown("""
@@ -59,15 +60,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 class TicketDatabase:
-    def __init__(self, db_path="tickets.db"):
+    def __init__(self, db_path="data/tickets.db"):  # Standardpfad: data/tickets.db
         self.db_path = db_path
+        # Erstelle Unterordner 'data', falls nicht vorhanden
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
-        self.cursor.execute("PRAGMA foreign_keys = ON")  # Enforce foreign keys
+        self.cursor.execute("PRAGMA foreign_keys = ON")  # Fremdschlüssel Enforcement
         self._initialize_tables()
     
     def close_connection(self):
-        """Explizit Datenbankverbindung schließen"""
+        """Explizit die Datenbankverbindung schließen"""
         try:
             self.conn.close()
         except sqlite3.Error as e:
@@ -82,7 +87,7 @@ class TicketDatabase:
                 role TEXT NOT NULL CHECK(role IN ('Anwender', 'Support', 'Administrator'))
             )
         ''')
-        # Ticket-Tabelle (ohne 'support_feedback' bei Vorhandensein, um zu prüfen)
+        # Ticket-Tabelle (mit 'support_feedback'-Spalte)
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS tickets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,40 +100,40 @@ class TicketDatabase:
                 updated_at DATETIME NOT NULL,
                 created_by TEXT NOT NULL,
                 last_updated_by TEXT,
-                feedback TEXT,
+                feedback TEXT,  -- Benutzer-Rückmeldung (bei Erledigung)
+                support_feedback TEXT,  -- Support/Admin-Rückmeldung (bei Statusänderung)
                 assigned_to TEXT,
                 FOREIGN KEY (created_by) REFERENCES users(username),
                 FOREIGN KEY (last_updated_by) REFERENCES users(username),
                 FOREIGN KEY (assigned_to) REFERENCES users(username)
             )
         ''')
-        # Prüfe, ob 'support_feedback'-Spalte existiert und füge sie hinzu, falls nicht
+        # Prüfe, ob 'support_feedback'-Spalte existiert (falls ältere Datenbank verwendet wird)
         self.cursor.execute("PRAGMA table_info(tickets)")
         columns = [col[1] for col in self.cursor.fetchall()]
         if 'support_feedback' not in columns:
             try:
                 self.cursor.execute('''
-                    ALTER TABLE tickets ADD COLUMN support_feedback TEXT
+                    ALTER TABLE tickets ADD COLUMN support_feedback TEXT DEFAULT NULL
                 ''')
                 st.success("Spalte 'support_feedback' in Tabelle 'tickets' hinzugefügt.")
             except sqlite3.Error as e:
-                st.error(f"Fehler beim Hinzufügen der Spalte 'support_feedback': {e}")
-                # App beenden, da Ticket-Erstellung nicht möglich ist
+                st.error(f"Fehler beim Hinzufügen von 'support_feedback': {e}")
                 self.close_connection()
-                st.stop()
+                st.stop()  # App beenden, da Ticket-Operationen nicht möglich sind
         
-        # Standard-Admin (wenn nicht vorhanden)
+        # Standard-Admin (falls nicht existent)
         self.cursor.execute("SELECT username FROM users WHERE username='admin'")
         if not self.cursor.fetchone():
-            self.add_user("admin", "admin123", "Administrator")  # Achte auf sichere Passwörter!
+            self.add_user("admin", "admin123", "Administrator")  # Achte auf Sicherheit!
         
         self.conn.commit()
     
     def add_user(self, username, password, role):
-        """Füge Benutzer mit gehashtem Passwort hinzu (mit Fehlerbehandlung)"""
+        """Benutzer mit gehashtem Passwort hinzufügen"""
         try:
             if not username.strip() or not password.strip():
-                st.error("Benutzername und Passwort dürfen nicht leer sein!")
+                st.error("Benutzername/Passwort darf nicht leer sein!")
                 return False
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             self.cursor.execute('''
@@ -138,14 +143,14 @@ class TicketDatabase:
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
-            st.error("Benutzername existiert bereits!")
+            st.error("Benutzer existiert bereits!")
             return False
         except sqlite3.Error as e:
             st.error(f"Datenbankfehler (Benutzer hinzufügen): {e}")
             return False
     
     def check_user(self, username, password):
-        """Prüfe Benutzeranmelde Daten (gehashtes Passwort)"""
+        """Benutzeranmeldecheck (gehashtes Passwort)"""
         try:
             if not username.strip() or not password.strip():
                 return None
@@ -161,7 +166,7 @@ class TicketDatabase:
             return None
     
     def add_ticket(self, title, description, priority, category, created_by):
-        """Füge neues Ticket hinzu (Status 'Neu' standardmäßig)"""
+        """Neues Ticket hinzufügen (Status 'Neu', support_feedback NULL)"""
         try:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.cursor.execute('''
@@ -177,13 +182,13 @@ class TicketDatabase:
             return None
     
     def get_tickets(self, search_query=None, priorities=None, statuses=None, created_by=None, assigned_to=None):
-        """Lade Tickets mit Such- und Filteroptionen (rollenbasiert)"""
+        """Tickets laden mit Filtern (Suche, Priorität, Status, Ersteller, Assigned-To)"""
         try:
             query = "SELECT * FROM tickets"
             params = []
             conditions = []
             
-            # Suchfilter (Titel/Beschreibung)
+            # Suche (Titel/Beschreibung)
             if search_query:
                 search = search_query.strip().lower()
                 conditions.append("(LOWER(title) LIKE ? OR LOWER(description) LIKE ?)")
@@ -206,15 +211,15 @@ class TicketDatabase:
                 conditions.append("created_by = ?")
                 params.append(created_by)
             
-            # Assign-To-Filter (Admin/Support)
+            # Assigned-To-Filter (Admin/Support)
             if assigned_to:
                 conditions.append("assigned_to = ?")
                 params.append(assigned_to)
             
-            # Kombiniere Bedingungen
+            # Bedingungen anhängen
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)
-            # Sortierung nach Update-Zeit (neueste zuerst)
+            # Sortierung (neueste zuerst)
             query += " ORDER BY updated_at DESC"
             
             self.cursor.execute(query, params)
@@ -225,10 +230,10 @@ class TicketDatabase:
             return []
     
     def update_status(self, ticket_id, new_status, support_feedback, updated_by):
-        """Aktualisiere Status, Update-Zeit und Support-Feedback (rollenbasierte Berechtigungen)"""
+        """Status und Support-Feedback aktualisieren (rollenbasiert)"""
         try:
             if not self._has_permission(ticket_id, updated_by):
-                st.error("Zugriff verweigert! Du hast keine Berechtigung, den Status zu ändern.")
+                st.error("Zugriff verweigert! Keine Berechtigung zum Ändern des Status.")
                 return False
             
             updated_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -244,11 +249,11 @@ class TicketDatabase:
             return False
     
     def update_feedback(self, ticket_id, feedback, updated_by):
-        """Aktualisiere Rückmeldung und Update-Zeit (nur für Ersteller bei 'Erledigt')"""
+        """Benutzer-Rückmeldung (Feedback) aktualisieren (nur bei Erledigt)"""
         try:
             ticket = self.get_ticket_by_id(ticket_id)
             if not ticket or ticket['created_by'] != updated_by or ticket['status'] != 'Erledigt':
-                st.error("Zugriff verweigert! Du kannst keine Rückmeldung für dieses Ticket eingeben.")
+                st.error("Zugriff verweigert! Keine Berechtigung zur Rückmeldung.")
                 return False
             
             updated_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -264,7 +269,7 @@ class TicketDatabase:
             return False
     
     def delete_ticket(self, ticket_id, deleted_by):
-        """Lösche Ticket (nur für Ersteller oder Admin)"""
+        """Ticket löschen (nur Ersteller oder Admin)"""
         try:
             if not self._can_delete_ticket(ticket_id, deleted_by):
                 st.error("Zugriff verweigert! Du darfst dieses Ticket nicht löschen.")
@@ -278,7 +283,7 @@ class TicketDatabase:
             return False
     
     def get_users(self):
-        """Lade alle Benutzer (Rolle und Name)"""
+        """Alle Benutzer laden (Name + Rolle)"""
         try:
             self.cursor.execute("SELECT username, role FROM users")
             columns = [desc[0] for desc in self.cursor.description]
@@ -288,13 +293,15 @@ class TicketDatabase:
             return []
     
     def delete_user(self, username):
-        """Lösche Benutzer (nur Admin, prüfe hängende Tickets)"""
+        """Benutzer löschen (nur Admin, bei fehlendem Ticket-Zusammenhang)"""
         try:
+            # Benutzer existieren?
             self.cursor.execute("SELECT username FROM users WHERE username=?", (username,))
             if not self.cursor.fetchone():
                 st.error("Benutzer existiert nicht!")
                 return False
             
+            # Benutzer mit Tickets verbunden?
             self.cursor.execute("SELECT COUNT(*) FROM tickets WHERE created_by=? OR last_updated_by=? OR assigned_to=?", 
                                (username, username, username))
             ticket_count = self.cursor.fetchone()[0]
@@ -310,7 +317,7 @@ class TicketDatabase:
             return False
     
     def _can_delete_ticket(self, ticket_id, username):
-        """Hilfsfunktion: Prüfe, ob Benutzer Ticket löschen darf (Ersteller oder Admin)"""
+        """Prüfe, ob Benutzer Ticket löschen darf (Ersteller oder Admin)"""
         try:
             self.cursor.execute('''
                 SELECT 1 FROM tickets 
@@ -323,7 +330,7 @@ class TicketDatabase:
             return False
     
     def _has_permission(self, ticket_id, username):
-        """Hilfsfunktion: Prüfe, ob Benutzer Status ändern darf (Admin oder Support für 'In Bearbeitung')"""
+        """Prüfe, ob Benutzer Status ändern darf (Admin oder Support bei nicht 'Erledigt')"""
         user_role = self._get_user_role(username)
         if not user_role:
             return False
@@ -339,7 +346,7 @@ class TicketDatabase:
         return False
     
     def _get_user_role(self, username):
-        """Hilfsfunktion: Hol Rolle eines Benutzers oder None"""
+        """Rolle eines Benutzers holen (oder None)"""
         try:
             self.cursor.execute("SELECT role FROM users WHERE username=?", (username,))
             role = self.cursor.fetchone()
@@ -349,18 +356,18 @@ class TicketDatabase:
             return None
     
     def get_ticket_by_id(self, ticket_id):
-        """Hilfsfunktion: Hol Ticket anhand von ID"""
+        """Ticket via ID holen (als Dictionary oder None)"""
         try:
             self.cursor.execute("SELECT * FROM tickets WHERE id=?", (ticket_id,))
             columns = [desc[0] for desc in self.cursor.description]
-            ticket = self.cursor.fetchone()
-            return dict(zip(columns, ticket)) if ticket else None
+            ticket_data = self.cursor.fetchone()
+            return dict(zip(columns, ticket_data)) if ticket_data else None
         except sqlite3.Error as e:
             st.error(f"Datenbankfehler (Ticket abrufen): {e}")
             return None
 
 def create_ticket_page(db):
-    """Ticket-Erstellung (nur Anwender)"""
+    """Ticket erstellen (nur Anwender)"""
     if st.session_state.role != "Anwender":
         st.error("Nur Anwender dürfen Tickets erstellen!")
         return
@@ -384,58 +391,59 @@ def create_ticket_page(db):
                 st.error("Ticket konnte nicht erstellt werden.")
 
 def list_tickets_page(db):
-    """Ticket-Übersicht (rollenbasierter Zugriff)"""
+    """Ticket-Übersicht (mit Feedback-Anzeige und -Eingabe)"""
     st.title("Ticket-Übersicht 📄")
     search_query = st.text_input("Suche...", key="search")
     priorities = st.multiselect("Priorität filtern", ["Niedrig", "Mittel", "Hoch"], default=["Niedrig", "Mittel", "Hoch"], key="priority")
     
-    # Status-Filter logik
-    if st.session_state.role == "Support":
-        default_statuses = ["Neu", "In Bearbeitung"]
-    else:
-        default_statuses = ["Neu", "In Bearbeitung", "Erledigt"]
+    # Status-Filter (Standard: Support sieht nur 'Neu'/'In Bearbeitung'; andere sehen alle)
+    default_statuses = ["Neu", "In Bearbeitung"] if st.session_state.role == "Support" else ["Neu", "In Bearbeitung", "Erledigt"]
     statuses = st.multiselect("Status filtern", ["Neu", "In Bearbeitung", "Erledigt"], default=default_statuses, key="status")
     
-    # Created_by logik
-    created_by = st.session_state.username if st.session_state.role == "Anwender" else None
-    # Hole Tickets mit den Filtern
-    tickets = db.get_tickets(search_query, priorities, statuses, created_by)
+    # Filter nach Ersteller (Anwender)
+    created_by_filter = st.session_state.username if st.session_state.role == "Anwender" else None
+    tickets = db.get_tickets(search_query, priorities, statuses, created_by_filter)
     
     if not tickets:
         st.info("Keine Tickets gefunden. Erstelle eines über 'Neues Ticket'! 🎯")
         return
     
-    # Ticket-Tabelle anzeigen
+    # Jedes Ticket anzeigen (Expander)
     for ticket in tickets:
         with st.expander(f"Ticket #{ticket['id']} ({ticket['priority']})", expanded=True):
             st.subheader(ticket['title'])
-            col1, col2 = st.columns([2, 1])
             
-            with col1:
-                # Details (inkl. Support-Feedback mit Fehlerbehandlung)
+            # Spalten für Details und Aktionen
+            col_details, col_actions = st.columns([2, 1])
+            
+            with col_details:
+                # Ticket-Daten anzeige (inkl. Support-Feedback)
                 st.write("**Beschreibung:**", ticket['description'] or "Keine Beschreibung")
                 st.write("**Kategorie:**", ticket['category'])
                 st.write("**Status:**", ticket['status'])
-                # Vermeide KeyError, falls Spalte fehlt (obwohl sie jetzt hinzugefügt sein sollte)
+                # Support-Feedback anzeigen (falls vorhanden)
                 support_feedback = ticket.get('support_feedback', "Keine Rückmeldung")
-                st.write("**Support Rückmeldung:**", support_feedback)
+                st.write("**Support-Rückmeldung:**", support_feedback)
                 st.write("**Erstellt am:**", ticket['created_at'])
                 st.write("**Zuletzt aktualisiert:**", ticket['updated_at'] or "Nie aktualisiert")
             
-            with col2:
+            with col_actions:
                 # Status ändern (falls berechtigt)
                 if db._has_permission(ticket['id'], st.session_state.username):
                     current_status = ticket['status']
+                    # Verfügbarer Status basierend auf Rolle
                     status_options = {
                         "Administrator": ["Neu", "In Bearbeitung", "Erledigt"],
                         "Support": ["In Bearbeitung", "Erledigt"] if current_status != "Erledigt" else [current_status],
                         "Anwender": [current_status]
                     }.get(st.session_state.role, [current_status])
                     
+                    #Fallback, falls Status nicht in Optionen enthalten
                     if current_status not in status_options:
                         status_options.insert(0, current_status)
                     
-                    with st.form(f"status-form-{ticket['id']}", clear_on_submit=True):
+                    # Formular für Status und Feedback
+                    with st.form(f"status-update-{ticket['id']}", clear_on_submit=True):
                         new_status = st.selectbox(
                             "Status", 
                             status_options, 
@@ -443,42 +451,41 @@ def list_tickets_page(db):
                             key=f"status-select-{ticket['id']}", 
                             label_visibility="hidden"
                         )
+                        # Support-Feedback-Eingabe (laden aktueller Wert)
+                        current_feedback = ticket.get('support_feedback', "")
                         support_feedback = st.text_area(
-                            "Support Rückmeldung",
-                            value=ticket.get('support_feedback', ""),  # Vermeide KeyError
+                            "Support-Rückmeldung",
+                            value=current_feedback,
                             key=f"support-feedback-{ticket['id']}",
-                            label_visibility="visible",
-                            height=100
+                            height=70,
+                            label_visibility="visible"
                         )
-                        submit_status = st.form_submit_button("Status aktualisieren")
+                        submit_btn = st.form_submit_button("Status aktualisieren")
                         
-                        if submit_status:
+                        if submit_btn:
+                            # Nur aktualisieren, wenn Status geändert wurde
                             if new_status != current_status:
                                 success = db.update_status(ticket['id'], new_status, support_feedback, st.session_state.username)
                                 if success:
-                                    st.success(f"Status von #{ticket['id']} auf '{new_status}' geändert! ✅")
-                            else:
-                                # Optional: Feedback aktualisieren ohne Statusänderung
-                                # (hier deaktiviert, da Anforderung 'bei Statusänderung' lautet)
-                                pass
-                    
+                                    st.success(f"Status #{ticket['id']} auf '{new_status}' aktualisiert! ✅")
+                
                 # Ticket löschen (falls berechtigt)
                 if db._can_delete_ticket(ticket['id'], st.session_state.username):
-                    delete_btn = st.button("Löschen", key=f"delete-btn-{ticket['id']}", use_container_width=True)
+                    delete_btn = st.button("Löschen", key=f"delete-ticket-{ticket['id']}", use_container_width=True)
                     if delete_btn:
                         success = db.delete_ticket(ticket['id'], st.session_state.username)
                         if success:
                             st.success(f"TICKET #{ticket['id']} gelöscht! 🗑️")
                             st.rerun()
             
-            # Benutzer-Rückmeldung (nur Ersteller bei 'Erledigt')
+            # Benutzer-Feedback (nur Ersteller bei 'Erledigt')
             if ticket['status'] == "Erledigt" and ticket['created_by'] == st.session_state.username:
                 feedback = st.text_area(
-                    "Rückmeldung eingeben", 
-                    value=ticket.get('feedback', ""),  # Vermeide KeyError
+                    "Meine Rückmeldung", 
+                    value=ticket.get('feedback', ""), 
                     key=f"feedback-area-{ticket['id']}", 
-                    label_visibility="hidden",
-                    height=100
+                    height=70,
+                    label_visibility="hidden"
                 )
                 if st.button("Rückmeldung speichern", key=f"feedback-save-{ticket['id']}"):
                     if db.update_feedback(ticket['id'], feedback, st.session_state.username):
@@ -493,6 +500,7 @@ def user_management_page(db):
     
     st.title("Benutzer Verwaltung 🔐")
     
+    # Neuen Benutzer anlegen
     with st.form("add_user", clear_on_submit=True):
         new_user = st.text_input("Benutzername", key="new_user")
         new_pw = st.text_input("Passwort", type="password", key="new_pw")
@@ -506,16 +514,20 @@ def user_management_page(db):
                 else:
                     st.error("Benutzer konnte nicht angelegt werden (doppelter Benutzername?)")
     
+    # Bestehende Benutzer anzeigen
     st.subheader("Aktive Benutzer")
     users = db.get_users()
     if not users:
         st.info("Keine Benutzer gefunden (außer Standard-Admin).")
         return
     
-    user_df = st.dataframe(users, use_container_width=True)
+    # Benutzer-Tabelle via DataFrame
+    st.dataframe(users, use_container_width=True)
+    
+    # Benutzer löschen (per Button)
     for user in users:
-        col_user, col_role, col_delete = st.columns([3, 2, 1])
-        with col_user:
+        col_name, col_role, col_delete = st.columns([3, 2, 1])
+        with col_name:
             st.write(user['username'])
         with col_role:
             st.write(f"({user['role']})")
@@ -532,7 +544,7 @@ def main():
     if 'role' not in st.session_state:
         st.session_state.role = None
     
-    # Seite konfigurieren
+    # Streamlit Seiteneinstellungen
     st.set_page_config(
         page_title="Ticket-System",
         page_icon="🎫",
@@ -540,10 +552,10 @@ def main():
         initial_sidebar_state="expanded"
     )
     
+    # Datenbank-Objekt initialisieren
     db = TicketDatabase()
-    # ... App-Logik ...
     
-    # Login Bereich (nur wenn nicht angemeldet)
+    # Login-Bereich (falls nicht angemeldet)
     if not st.session_state.username:
         st.title("Anmeldung 🚪")
         username = st.text_input("Benutzername", key="login_user")
@@ -557,20 +569,19 @@ def main():
                 st.rerun()
             else:
                 st.error("Falscher Benutzername oder Passwort! ❌")
-        db.close_connection()  # Verbindung schließen, falls nicht angemeldet
+        # Verbindung schließen, falls nicht angemeldet
+        db.close_connection()
         return
     
-    # Authentifizierter Benutzer: Menü sidebar
+    # Sidebar-Menü (angemeldet)
     st.sidebar.title("Menü 📁")
     st.sidebar.write(f"Angemeldet als: {st.session_state.username} ({st.session_state.role})")
-    
-    # Seitenauswahl (rollenbasiert)
     page_options = ["Ticket-Übersicht", "Neues Ticket"]
     if st.session_state.role == "Administrator":
         page_options.append("Benutzer Verwaltung")
     page = st.sidebar.radio("Wähle eine Seite", page_options, key="page", index=0)
     
-    # Seiten rendern
+    # Seite rendern
     if page == "Ticket-Übersicht":
         list_tickets_page(db)
     elif page == "Neues Ticket":
@@ -578,7 +589,8 @@ def main():
     elif page == "Benutzer Verwaltung":
         user_management_page(db)
     
-    db.close_connection()  # Verbindung am Ende von main() schließen
+    # Verbindung am Ende von main() schließen
+    db.close_connection()
 
 if __name__ == "__main__":
     main()
