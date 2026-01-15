@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Meine Tickets</h3>
+
+<form method="post" action="/create_ticket">
+    <input name="title" placeholder="Titel" class="form-control mb-2">
+    <textarea name="description" placeholder="Beschreibung" class="form-control mb-2"></textarea>
+    <input name="category" placeholder="Kategorie" class="form-control mb-2">
+    <select name="priority" class="form-control mb-2">
+        <option>Niedrig</option><option>Mittel</option><option>Hoch</option>
+    </select>
+    <button class="btn btn-success">Ticket erstellen</button>
+</form>
+
+<hr>
+<ul>
+{% for t in tickets %}
+    <li>{{ t[1] }} – {{ t[5] }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Support-Dashboard</h3>
+
+{% for t in tickets %}
+<form method="post" action="/update_ticket/{{ t[0] }}">
+    <b>{{ t[1] }}</b>
+    <select name="status">
+        <option>Neu</option>
+        <option>In Bearbeitung</option>
+        <option>Erledigt</option>
+    </select>
+    <input name="comment" placeholder="Kommentar">
+    <button class="btn btn-sm btn-primary">Speichern</button>
+</form>
+<hr>
+{% endfor %}
+{% endblock %}
