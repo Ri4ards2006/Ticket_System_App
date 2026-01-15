@@ -380,17 +380,18 @@ def create_ticket_page(db):
 def list_tickets_page(db):
     """Ticket-Übersicht (rollenbasierter Zugriff)"""
     st.title("Ticket-Übersicht 📄")
-    tickets = db.get_tickets(
-        search_query=st.text_input("Suche...", key="search"),
-        priorities=st.multiselect("Priorität filtern", ["Niedrig", "Mittel", "Hoch"], default=["Niedrig", "Mittel", "Hoch"], key="priority"),
-        statuses=st.multiselect(
-            "Status filtern", 
-            ["Neu", "In Bearbeitung", "Erledigt"], 
-            default=["Neu", "In Bearbeitung"] if st.session_state.role == "Support" else ["Neu", "In Bearbeitung", "Erledigt"], 
-            key="status"
-        ),
-        created_by=st.session_state.username if st.session_state.role == "Anwender" else None
-    )
+    search_query = st.text_input("Suche...", key="search")
+    priorities = st.multiselect("Priorität filtern", ["Niedrig", "Mittel", "Hoch"], default=["Niedrig", "Mittel", "Hoch"], key="priority")
+    # Status-Filter logik
+    if st.session_state.role == "Support":
+        default_statuses = ["Neu", "In Bearbeitung"]
+    else:
+        default_statuses = ["Neu", "In Bearbeitung", "Erledigt"]
+    statuses = st.multiselect("Status filtern", ["Neu", "In Bearbeitung", "Erledigt"], default=default_statuses, key="status")
+    # Created_by logik
+    created_by = st.session_state.username if st.session_state.role == "Anwender" else None
+    # Hole Tickets mit den Filtern
+    tickets = db.get_tickets(search_query, priorities, statuses, created_by)
     
     if not tickets:
         st.info("Keine Tickets gefunden. Erstelle eines über 'Neues Ticket'! 🎯")
@@ -442,7 +443,7 @@ def list_tickets_page(db):
                         success = db.delete_ticket(ticket['id'], st.session_state.username)
                         if success:
                             st.success(f"TICKET #{ticket['id']} gelöscht! 🗑️")
-                            st.experimental_rerun()
+                            st.rerun()  # Korrigiert: experimental_rerun → rerun
             
             # Rückmeldung (nur Ersteller bei 'Erledigt')
             if ticket['status'] == "Erledigt" and ticket['created_by'] == st.session_state.username:
@@ -455,7 +456,7 @@ def list_tickets_page(db):
                 if st.button("Rückmeldung speichern", key=f"feedback-save-{ticket['id']}"):
                     if db.update_feedback(ticket['id'], feedback, st.session_state.username):
                         st.success("Rückmeldung gespeichert! ✅")
-                        st.experimental_rerun()
+                        st.rerun()  # Korrigiert: experimental_rerun → rerun
 
 def user_management_page(db):
     """Benutzer-Verwaltung (nur Admin)"""
@@ -478,7 +479,7 @@ def user_management_page(db):
                     st.success(f"Benutzer '{new_user}' angelegt! 🎉")
                 else:
                     st.error("Benutzer konnte nicht angelegt werden (doppelter Benutzername?)")
-
+    
     # Bestehende Benutzer auflisten
     st.subheader("Aktive Benutzer")
     users = db.get_users()
@@ -497,7 +498,7 @@ def user_management_page(db):
             if st.button(f"Löschen", key=f"del_user-{user['username']}"):
                 if db.delete_user(user['username']):
                     st.success(f"Benutzer '{user['username']}' gelöscht! 🗑️")
-                    st.experimental_rerun()
+                    st.rerun()  # Korrigiert: experimental_rerun → rerun
 
 def main():
     # Session State initialisieren
@@ -527,10 +528,10 @@ def main():
                 st.session_state.username = username
                 st.session_state.role = role
                 st.success("Erfolgreich angemeldet! 🎉")
-                st.experimental_rerun()
+                st.rerun()  # Korrigiert: experimental_rerun → rerun
             else:
                 st.error("Falscher Benutzername oder Passwort! ❌")
-        return  # Hier korrekt eingerückt! Beendet die Funktion, wenn nicht angemeldet
+        return  # Beendet die Funktion, wenn nicht angemeldet
     
     # Authentifizierter Benutzer: Menü sidebar
     st.sidebar.title("Menü 📁")
