@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticketsystem</title>
+</head>
+<body>
+<h1>Ticketsystem</h1>
+
+<form method="post" action="/create">
+    <input name="title" placeholder="Problem" required>
+    <select name="category">
+        <option>Hardware</option>
+        <option>Software</option>
+        <option>Netzwerk</option>
+    </select>
+    <select name="priority">
+        <option>Niedrig</option>
+        <option>Mittel</option>
+        <option>Hoch</option>
+    </select>
+    <button>Ticket erstellen</button>
+</form>
+
+<hr>
+
+<table border="1">
+<tr>
+    <th>ID</th><th>Titel</th><th>Status</th><th>Aktion</th>
+</tr>
+{% for t in tickets %}
+<tr>
+    <td>{{ t[0] }}</td>
+    <td>{{ t[1] }}</td>
+    <td>{{ t[4] }}</td>
+    <td>
+        {% if t[4] != "Erledigt" %}
+        <a href="/update/{{ t[0] }}">Abschließen</a>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>

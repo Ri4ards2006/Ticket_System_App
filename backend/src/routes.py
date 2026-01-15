@@ -1,16 +1,22 @@
+# src/routes.py
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
-from .models import db, User, Ticket
+from .models import User, Ticket
 
 main = Blueprint("main", __name__, template_folder="templates")
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = User.query.filter_by(username=request.form["username"]).first()
-        if user and user.password == request.form["password"]:
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password:
             login_user(user)
             return redirect(url_for("main.dashboard"))
+        return "Invalid credentials", 401
+
     return render_template("login.html")
 
 @main.route("/logout")
@@ -24,22 +30,3 @@ def logout():
 def dashboard():
     tickets = Ticket.query.all()
     return render_template("index.html", tickets=tickets, user=current_user)
-
-@main.route("/tickets")
-@login_required
-def tickets_view():
-    tickets = Ticket.query.all()
-    return render_template("tickets.html", tickets=tickets, user=current_user)
-
-@main.route("/tickets/create", methods=["POST"])
-@login_required
-def create_ticket():
-    ticket = Ticket(
-        title=request.form["title"],
-        description=request.form["description"],
-        created_by=current_user.id,
-        status="open"
-    )
-    db.session.add(ticket)
-    db.session.commit()
-    return redirect(url_for("main.dashboard"))
