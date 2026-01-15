@@ -299,4 +299,4 @@ def main():
         list_tickets_page(db)
 
 if __name__ == "__main__":
-    main()
+    main() 
