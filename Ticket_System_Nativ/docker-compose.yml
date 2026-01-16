@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
@@ -6,27 +8,30 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: ticketdb
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   backend:
-    build: ./backend
-    ports:
-      - "5000:5000"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
+      SECRET_KEY: supersecretkey
     depends_on:
       - db
-    environment:
-      FLASK_ENV: development
-      FLASK_APP: src.app
-      DATABASE_URL: postgresql://ticketuser:password@db:5432/ticketdb
-    volumes:
-      - ./backend/src:/app/src
+    ports:
+      - "5000:5000"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
     ports:
-      - "80:80"
+      - "8080:80"
 
 volumes:
-  pgdata:
+  db_data:
