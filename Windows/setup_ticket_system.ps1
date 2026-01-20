@@ -1,37 +1,40 @@
-Write-Host "=== Ticket-System Server Setup ==="
+Write-Host "🎫 Ticket System Setup"
+Write-Host "======================"
+Write-Host "1️⃣ Nano (Streamlit, demo)"
+Write-Host "2️⃣ Micro (Flask, lightweight)"
+Write-Host "3️⃣ Native (Docker, enterprise)"
+$version = Read-Host "👉 Choose version [1-3]"
 
-# Arbeitsverzeichnis
 $BASE_DIR = "$env:USERPROFILE\ticket-system"
-New-Item -ItemType Directory -Force -Path $BASE_DIR
+New-Item -ItemType Directory -Force -Path $BASE_DIR | Out-Null
 Set-Location $BASE_DIR
 
-# Prüfen ob Git installiert ist
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ Git nicht gefunden. Bitte installieren."
-    exit 1
-}
-
-# Prüfen ob Python installiert ist
-if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ Python nicht gefunden. Bitte Python 3.13 installieren."
-    exit 1
-}
-
-# Repository klonen
-Write-Host "📥 Klone Repository..."
+Write-Host "📥 Cloning repository..."
 git clone https://github.com/DEIN-USERNAME/DEIN-REPO.git
 Set-Location DEIN-REPO
 
-# Virtuelle Umgebung erstellen
-Write-Host "🐍 Erstelle Python venv..."
-python -m venv .venv
-.\.venv\Scripts\activate
+if ($version -eq "1") {
+    Write-Host "🚀 Starting NANO version"
+    Set-Location Ticket_System_Nano
+    python -m venv .venv
+    .\.venv\Scripts\activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    python -m streamlit run src\app.py --server.address 0.0.0.0
 
-# Abhängigkeiten installieren
-Write-Host "📦 Installiere Dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
+} elseif ($version -eq "2") {
+    Write-Host "⚙️ Starting MICRO version"
+    Set-Location Ticket_System_Micro
+    python -m venv .venv
+    .\.venv\Scripts\activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    python app.py
 
-# Ticket-System starten
-Write-Host "🚀 Starte Ticket-System (Streamlit)..."
-python -m streamlit run Ticket_System_Nano\src\app.py --server.address 0.0.0.0
+} elseif ($version -eq "3") {
+    Write-Host "🐳 Starting NATIVE version (Docker)"
+    docker-compose up --build
+
+} else {
+    Write-Host "❌ Invalid selection"
+}
