@@ -1,27 +1,52 @@
-# Projektdokumentation – Ticketsystem
+# 🎫 Project Overview – Ticket System Introduction
 
-## Ziel
-Entwicklung eines webbasierten Ticketsystems für kleine bis mittlere Unternehmen.
+## Project Goal
+The goal of this project is to design, implement, and demonstrate a **web-based IT ticket system** for a medium-sized company (50–100 employees).
 
-## Serviceprozess
-1. Anwender erstellt Ticket
-2. Support bearbeitet Ticket
-3. Rückmeldung an Anwender
-4. Ticket wird abgeschlossen
+The system centralizes IT service requests, replaces unstructured communication (calls, emails, hallway requests), and enables transparent tracking of support tickets.
 
-## Technische Umsetzung
-- Webanwendung
-- Browserzugriff
-- Rollen: User / Support / Admin
-- Umsetzung mit Python & Streamlit
+---
 
-## Abgrenzung
-Fokus liegt auf Serviceprozess, nicht auf Enterprise-Deployment.
+## System Name
+**Ticket System Evolution – Nano / Micro / Native**
 
-## Ticketsystem – Kurzanleitung
+---
 
-1. Browser öffnen
-2. Adresse eingeben
-3. Einloggen
-4. Ticket erstellen
-5. Rückmeldung lesen
+## Available Versions
+This project provides three technical implementations of the same service process:
+
+| Version | Description | Intended Use |
+|------|------------|-------------|
+| Nano | Streamlit-based, single-file application | Demo, learning, live presentation |
+| Micro | Flask + SQLite monolithic app | Small teams, realistic prototype |
+| Native | Flask + PostgreSQL + Docker | Enterprise / production concept |
+
+➡️ **For the live demonstration, the Nano version is used.**
+
+---
+
+## Access Information
+- **URL:** http://localhost:8501  
+- **Deployment:** Local server (Windows/Linux)
+- **Browser-based:** Yes (no client installation required)
+
+---
+
+## User Roles
+- **User:** Creates tickets and receives feedback  
+- **Support:** Processes and resolves tickets  
+- **Administrator:** Manages system and users
+
+---
+
+## Key Features
+- Web-based access
+- Role-based permissions
+- Ticket attributes: category, priority, status
+- Support feedback visible to users
+- Simple and reliable service workflow
+
+---
+
+## Conclusion
+The project fulfills all technical and organizational requirements of the assignment and focuses on **service quality, usability, and clarity** rather than unnecessary complexity.
