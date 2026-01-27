@@ -12,7 +12,7 @@ mkdir -p "$BASE_DIR"
 cd "$BASE_DIR" || exit 1
 
 echo "📥 Cloning repository..."
-git clone https://github.com/DEIN-USERNAME/DEIN-REPO.git
+git clone https://github.com/Ri4ards2006/Ticket_System_App.git
 cd DEIN-REPO || exit 1
 
 if [ "$VERSION" == "1" ]; then
