@@ -765,19 +765,17 @@ def admin_dashboard_page(db: TicketDatabase) -> None:
         st.caption(avg)
     else:
         st.metric("Durchschnittliche Bearbeitungszeit", avg)
-
-
 # -------------------------------------------------
 # Haupt‑Programm
 # -------------------------------------------------
 def main() -> None:
-    # Session‑State initialisieren (erste Ausführung)
+    # Session‑State initialisieren
     if "username" not in st.session_state:
         st.session_state.username = None
     if "role" not in st.session_state:
         st.session_state.role = None
 
-    # DB‑Verbindung für den aktuellen Lauf öffnen
+    # DB‑Verbindung öffnen
     try:
         db = TicketDatabase()
     except Exception as exc:
@@ -785,51 +783,46 @@ def main() -> None:
         st.stop()
 
     # --------------------------- Login ---------------------------
-# --------------------------- Login ---------------------------
     if not st.session_state.username:
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
         st.markdown('<div class="company-header">Schacht GmbH <span>🏗️</span></div>', unsafe_allow_html=True)
         
-        # --- HIER DAS BILD EINFÜGEN ---
-        # Du kannst eine URL oder einen lokalen Pfad nutzen. 
-        # use_container_width sorgt dafür, dass es in die Box passt.
-        st.image("data/Schacht_GmbH.jpg", use_container_width=True) 
-        
         st.markdown('<h2 class="login-title">Anmeldung zum Ticket‑System</h2>', unsafe_allow_html=True)
 
-        login_user = st.text_input("Benutzername", key="login_user")
-        # ... Rest des Codes
-        login_pass = st.text_input("Passwort", type="password", key="login_pw")
+        # WICHTIG: Eindeutige Keys nutzen, um DuplicateElementKey Error zu vermeiden
+        login_user = st.text_input("Benutzername", key="login_user_final")
+        login_pass = st.text_input("Passwort", type="password", key="login_pw_final")
 
-        if st.button("Einloggen"):
+        if st.button("Einloggen", key="login_btn_final"):
             role = db.check_user(login_user, login_pass)
             if role:
                 st.session_state.username = login_user
                 st.session_state.role = role
                 st.success("Erfolgreich angemeldet! 🎉")
-
-                # DB sauber schließen – im nächsten Run wird sie erneut aufgebaut
                 db.close()
-                # Durch das `return` endet die aktuelle Ausführung.
-                # Der nächste Streamlit‑Run wird automatisch ausgelöst, weil sich
-                # `session_state.username` geändert hat.
+                st.rerun() # Seite neu laden
                 return
             else:
                 st.error("Falscher Benutzername oder Passwort.")
+        
         st.markdown('</div>', unsafe_allow_html=True)
-
-        # Login‑Verlauf beendigt – DB schließen und Skript fertig.
         db.close()
         return
 
-    # --------------------------- Logged‑in UI ---------------------------
-    st.sidebar.title("Menü 📁")
-    st.sidebar.write(f"🧑‍💼 {st.session_state.username} ({st.session_state.role})")
+    # --------------------------- Logged-in UI ---------------------------
+    st.sidebar.title("Menü 📂")
+    st.sidebar.write(f"👤 {st.session_state.username} ({st.session_state.role})")
+    
+    if st.sidebar.button("Abmelden"):
+        st.session_state.username = None
+        st.session_state.role = None
+        st.rerun()
 
     page_options = ["Ticket‑Übersicht", "Neues Ticket"]
     if st.session_state.role == "Administrator":
         page_options += ["Benutzer Verwaltung", "Admin Dashboard"]
-    current_page = st.sidebar.radio("Seite wählen", page_options, index=0)
+    
+    current_page = st.sidebar.radio("Seite wählen", page_options)
 
     if current_page == "Ticket‑Übersicht":
         list_tickets_page(db)
@@ -840,11 +833,7 @@ def main() -> None:
     elif current_page == "Admin Dashboard":
         admin_dashboard_page(db)
 
-    # Aufräumen (Datenbank schließen – wird jedes Mal neu gebaut)
     db.close()
 
-
 if __name__ == "__main__":
-    # Streamlit‑Version in den Logs ausgeben (hilft beim Debuggen)
-    print(f"Streamlit‑Version: {st.__version__}")
     main()
