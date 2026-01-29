@@ -21,7 +21,7 @@ This project presents three versions of the ticket system, each optimized for di
 ### Nano Version (Recommended for Beginners)  
 ```bash
 # Clone the repository
-git clone [YOUR_REPO_URL]
+git clone https://github.com/Ri4ards2006/Ticket_System_App.git
 # Navigate to the Nano directory
 cd Ticket_System_Nano
 # Install dependencies (if not already installed)
@@ -35,7 +35,7 @@ Access the app at `http://localhost:8501`.
 ### Micro Version (Lightweight)  
 ```bash
 # Clone the repository
-git clone [YOUR_REPO_URL]
+git clone [https://github.com/Ri4ards2006/Ticket_System_App.git]
 # Navigate to the Micro directory
 cd Ticket_System_Micro
 # Install dependencies
@@ -48,7 +48,7 @@ Access the app at `http://localhost:5000`.
 ### Native Version (Production-Ready, Docker)  
 ```bash
 # Clone the repository
-git clone [YOUR_REPO_URL]
+git clone [https://github.com/Ri4ards2006/Ticket_System_App.git]
 # Navigate to the Native directory
 cd Ticket_System_Native
 # Build and start services (requires Docker)
