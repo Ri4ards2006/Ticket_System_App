@@ -785,13 +785,20 @@ def main() -> None:
         st.stop()
 
     # --------------------------- Login ---------------------------
+# --------------------------- Login ---------------------------
     if not st.session_state.username:
-        # Login‑UI nur das allererste Mal
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
-        st.markdown('<div class="company-header">Schacht GmbH <span>♟️</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="company-header">Schacht GmbH <span>🏗️</span></div>', unsafe_allow_html=True)
+        
+        # --- HIER DAS BILD EINFÜGEN ---
+        # Du kannst eine URL oder einen lokalen Pfad nutzen. 
+        # use_container_width sorgt dafür, dass es in die Box passt.
+        st.image("data/Schacht_GmbH.jpg", use_container_width=True) 
+        
         st.markdown('<h2 class="login-title">Anmeldung zum Ticket‑System</h2>', unsafe_allow_html=True)
 
         login_user = st.text_input("Benutzername", key="login_user")
+        # ... Rest des Codes
         login_pass = st.text_input("Passwort", type="password", key="login_pw")
 
         if st.button("Einloggen"):
